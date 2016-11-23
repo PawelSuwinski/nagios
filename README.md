@@ -9,7 +9,7 @@ Contains Useful Features Like ---
 * Low bandwidth usage when downloading hundreds/thousands of Alerts Emails.
 * Takes less than 10 minutes to setup.
 
-![alt text](Screenshot2.png "Nagios Alert eMail")
+![alt text](Screenshot1.png "Nagios Alert eMail")
 
 
 **First Download the three .php files to the nagios/libexec/ folder and give them execution permission**
