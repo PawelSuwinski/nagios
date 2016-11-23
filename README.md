@@ -25,13 +25,15 @@ command_name notify-service-by-email
 command_line /usr/local/nagios/libexec/nagios_service_mail.php "$NOTIFICATIONTYPE$" "$HOSTNAME$" "$HOSTALIAS$" "$HOSTSTATE$" "$HOSTADDRESS$" "$SERVICEOUTPUT$" "$SHORTDATETIME$" "$SERVICEDESC$" "$SERVICESTATE$" "$CONTACTEMAIL$" "$SERVICEDURATIONSEC$" "$SERVICEEXECUTIONTIME$" "$TOTALSERVICESWARNING$" "$TOTALSERVICESCRITICAL$" "$TOTALSERVICESUNKNOWN$" "$NOTIFICATIONRECIPIENTS$" "$TOTALSERVICESOK$" "$SERVICENOTIFICATIONNUMBER$" "$SERVICEACKCOMMENT$" "$HOSTGROUPNAME$" "$SERVICEPERFDATA$"
 }
 ```
-** Also replace the [notify-host-by-email] code block with the following block.
+** Also replace the [notify-host-by-email] code block with the following block **
+
 ```
 define command{
 command_name notify-host-by-email
 command_line /usr/local/nagios/libexec/nagios_host_mail.php "$NOTIFICATIONTYPE$" "$HOSTNAME$" "$HOSTALIAS$" "$HOSTSTATE$" "$HOSTADDRESS$" "$HOSTOUTPUT$" "$SHORTDATETIME$" "$SERVICEDESC$" "$SERVICESTATE$" "$CONTACTEMAIL$" "$TOTALHOSTSUP$" "$TOTALHOSTSDOWN$" "$HOSTGROUPNAME$" "$SERVICEPERFDATA$"
 }
 ```
+
 Check your nagios/libexec folder paths are accurate and save the "command.cfg" file.
 In order to get the graph to render, we need to configure the Apache "httpd.conf" file. Go ahead and open the "/etc/httpd/conf/httpd.conf" and add an extra VirtualHost as follows.. (The ServerName & ServerAlias should be your nagios domain name)
 
@@ -46,6 +48,7 @@ ErrorLog logs/nagios-error_log
 ```
 
 The emails are sent using the PHP mail() function. A set of temporary files are written to the root level /tmp folder in order to determine the Total Downtime upon Service Recovery. Many MACROS are used in order to boost the Usable Data, hence I am not sure if it will work on Older Nagios v2.0.
+
 ---------------------------------------------------------------------------------
 [Optional Bonus]: If you have CMSimple "Content Management" installed, you can create a custom link which Network Staff can click and get the details of every single Service Type and Description. In order to do this, you will need to install the CMSimple and create headings with Identical Names as the Service Name in Nagios. The dummy domain nagios.cmsnagios.com was used as the Nagios WebSite. The CMSimple was used to compliment the New Network Staff.
 
