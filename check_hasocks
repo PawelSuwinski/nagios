@@ -1,0 +1,137 @@
+#!/bin/bash
+
+# ## Plugin for Nagios to CHeck The HaProxy.cfg Syntax for Errors
+# ## Written by Shawn Brito (http://linux777.wordpress.com/)
+# ##
+#
+# Usage: ./check_haproxy_config.sh -x <haprxy_bin_path> -c <haprxy_conf_path> -c <crit>
+#
+# ## Description:
+#
+# This plugin determines if the HaProxy Syntax is correct
+# and Alerts if there is a Syntax Error or LB Member Connection Failure
+# The plugin prints the size of the haproxy.cfg in bytes followed by "OK" or
+# "Critical" if Syntax Errors are found.
+#
+# Exit Codes
+# 0 OK       HaProxy Syntax checked and everything is ok
+# 2 Critical HaProxy Syntax Check is "Critical"
+#
+
+# Paths to commands used in this script.  
+
+PATH=""
+SOCAT="/usr/bin/socat"
+GREP="/bin/grep"
+XARG="/usr/bin/xargs"
+
+PROGNAME=`/usr/bin/basename $0`
+PROGPATH=`echo $0 | /bin/sed -e 's,[\\/][^\\/][^\\/]*$,,'`
+REVISION="Revision 1.0"
+AUTHOR="2018 Shawn Brito "
+
+# Exit codes
+STATE_OK=0
+STATE_WARN=1
+STATE_CRIT=2
+STATE_UNKNOWN=4
+
+print_revision() {
+    echo "$REVISION $AUTHOR"
+}
+
+print_usage() {
+    echo "Usage: $PROGNAME -x <haprxy_sock_path> -f <key1,key2,key3> -c <crit>"
+    echo "Usage: $PROGNAME --help"
+    echo "Usage: $PROGNAME --version"
+    echo ""
+}
+
+print_help() {
+    print_revision $PROGNAME $REVISION
+    echo ""
+    echo "HaProxy Advanced Stats Monitor plugin for Nagios"
+    echo ""
+    print_usage
+    echo ""
+}
+
+# Make sure the correct number of command line
+# arguments have been supplied
+
+if [ $# -lt 1 ]; then
+    print_usage
+    exit $STATE_UNKNOWN
+fi
+
+# Grab the command line arguments
+
+thresh_crit=""
+perfdata="|"
+exitstatus=$STATE_OK #default
+while test -n "$1"; do
+    case "$1" in
+        --help)
+            print_help
+            exit $STATE_OK
+            ;;
+        --version)
+            print_revision $PROGNAME $VERSION
+            exit $STATE_OK
+            ;;
+        -x)
+            sockpath=$2
+            shift
+            ;;
+        -c)
+            thresh_crit=$2
+            shift
+            ;;
+        -f)
+            cfgkey=$2
+            shift
+            ;;
+        *)
+            echo "Unknown argument: $1"
+            print_usage
+            exit $STATE_UNKNOWN
+            ;;
+    esac
+    shift
+done
+
+output="HaProxy Socket Stats: ";
+IFS=',' read -ra ADDR <<< "$cfgkey"
+MASTMP=`echo "show info" | $SOCAT stdio "$sockpath"`
+
+for i in "${ADDR[@]}"; do
+    KEYVAL=`echo "$MASTMP"| $GREP  "$i"`
+
+    IFS=':' read -ra KEYARR <<< "$KEYVAL"
+    KEY1=`echo ${KEYARR[0]} `
+    VAL1=`echo ${KEYARR[1]} `
+    output="$output [$KEY1=$VAL1] "
+    perfdata="$perfdata $KEY1=$VAL1;0;0;0; "
+done
+
+duresult="OK";
+if [[ $duresult = *"WARN"* ]]; then
+   result="$duresult"
+   exitstatus=$STATE_WARN
+fi
+if [[ $duresult = *"ALERT"* ]]; then
+   result="$duresult"
+   exitstatus=$STATE_CRIT
+fi
+if [[ $duresult = *"Fatal"* ]]; then
+   result="$duresult"
+   exitstatus=$STATE_CRIT
+fi
+
+#result="${result//$'\n'/-}"
+result="$output $perfdata"
+
+echo "$result"
+exit $exitstatus
+
+
