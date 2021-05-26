@@ -10,7 +10,8 @@
  $f_host_name = $_GET['host'];  /*1*/
  $f_service = $_GET['srv'];    /*2*/
  
- $url = "http://$f_domain/pnp4nagios/image?host=$f_host_name&srv=$f_service&view=3&source=0&start=$lastWeek&end=$mnow";
+ $url = "http://$f_domain/pnp4nagios/image?host=".rawurlencode($f_host_name)
+   .'&srv='.rawurlencode($f_service)."&view=3&source=0&start=$lastWeek&end=$mnow";
  $ch = curl_init();
  curl_setopt($ch, CURLOPT_URL,$url);
  curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
