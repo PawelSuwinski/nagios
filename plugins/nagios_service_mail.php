@@ -90,7 +90,7 @@ $body .= "<tr bgcolor=#dedefe><td><b>Acknowledge Info:</b></td><td>$f_ack</td></
 $body .= "<tr bgcolor=#fefefe><td><b>Notified TO:</b></td><td><font color=#007700><b>$f_notifyguys</b></font></td></tr></table> \r\n";
 $body .= '<img src="data:image/png;base64,' . base64_encode(file_get_contents(vsprintf(
     $f_nagios_url . '/cms/graph_auth.php?host=%s&srv=%s',
-    array_map(fn($v) => rawurlencode($v),[$f_host_name, $f_serv_desc])
+    array_map(function($v) { return rawurlencode($v); },[$f_host_name, $f_serv_desc])
   ))).'" width=580 height=170>'."\r\n";
 $body .= "</td><td valign='top'><table border=0 cellpadding=0 cellspacing=0 width=300><tr bgcolor=#000055><td><b> \r\n";
 $body .= "<font color=#FFFFFF>Summery</font></b></td><td>.</td></tr> \r\n";
